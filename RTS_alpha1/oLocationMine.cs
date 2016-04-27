@@ -9,9 +9,11 @@ namespace RTS_alpha1
     public class oLocationMine : oLocation
     {
         public int Supply;
+        public int Distance;
 
         public oLocationMine() : base()
         {
+            Distance = 9999;
             Supply = Global.rnd.Next(1, 11) * 5;
             LocationType = LocationType.IronMine;
         }

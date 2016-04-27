@@ -14,6 +14,7 @@ namespace RTS_alpha1
         public int X;
         public int Y;
         public oStep Destination;
+        public Guid UnitGuid;
 
         private List<oPathStep> _steps;
         private List<oPathStep> _lookAtNext;
@@ -40,9 +41,7 @@ namespace RTS_alpha1
             _dist = 0;
             _lookAtNext.Add(new oPathStep(X, Y));
             StepLookAt();
-
-
-
+        
             //return _steps;
             return BuildRouteFromPath();
         }
@@ -212,6 +211,11 @@ namespace RTS_alpha1
             foreach(oPathStep ps in _temp)
             {
                 if (ps.X == X && ps.Y == Y) { return null; }
+            }
+
+            if (!Engine.NodeIsEmpty(UnitGuid, X, Y))
+            {
+                return null;
             }
 
             //n = Nodes[X + (Y * Engine.Width)];

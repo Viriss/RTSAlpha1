@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace RTS_alpha1
 {
 
-    public enum UnitAction { FindMine, MoveToMine, Mine, FindForge, MoveToForge, DepositAtForge }
+    public enum UnitAction { FindMine, MoveToMine, Mine, FindForge, MoveToForge, DepositAtForge, WanderStart, WanderWalk }
 
     public class oUnit
     {
@@ -33,6 +33,7 @@ namespace RTS_alpha1
         public oStep _destination;
         public List<oPathStep> _path;
         private float _mineTimer;
+        private int _pathBlockedCnt = 0;
 
         public oUnit()
         {
@@ -74,22 +75,37 @@ namespace RTS_alpha1
                 case UnitAction.DepositAtForge:
                     DepositAtForge();
                     break;
+                case UnitAction.WanderStart:
+                    WanderStart();
+                    break;
+                case UnitAction.WanderWalk:
+                    WanderWalk();
+                    break;
             }
         }
 
         private void FindMine()
         {
-            oLocationMine mine = Engine.FindMine();
+            oLocationMine mine = Engine.FindMine(this.X, this.Y);
             if (mine != null)
             {
                 oNode node = Engine.FindNodeByLocationGuid(mine.LocationGuid);
                 _destination =  new oStep(node.X, node.Y);
 
                 oPathfinder pathFinder = new oPathfinder(Engine.Nodes, X, Y, _destination);
+                pathFinder.UnitGuid = this.Guid;
 
                 _path = pathFinder.FindPath();
+                _pathBlockedCnt = 0;
 
-                CurrentAction = UnitAction.MoveToMine;
+                if (_path.Count < 2)
+                {
+                    CurrentAction = UnitAction.WanderStart;
+                }
+                else
+                {
+                    CurrentAction = UnitAction.MoveToMine;
+                }
             }
             else
             {
@@ -102,9 +118,20 @@ namespace RTS_alpha1
             if (_path.Count > 0)
             {
                 oPathStep _next = _path[_path.Count - 1];
-                _path.RemoveAt(_path.Count - 1);
-                PosX = _next.X;
-                PosY = _next.Y;
+                if (Engine.NodeIsEmpty(Guid, _next.X, _next.Y))
+                {
+                    _path.RemoveAt(_path.Count - 1);
+                    PosX = _next.X;
+                    PosY = _next.Y;
+                }
+                else
+                {
+                    _pathBlockedCnt += 1;
+                    if (_pathBlockedCnt > 5)
+                    {
+                        CurrentAction = UnitAction.WanderStart;
+                    }
+                }
             }
             else
             {
@@ -118,9 +145,8 @@ namespace RTS_alpha1
             _mineTimer += MineRate;
             if (_mineTimer >= MineTime)
             {
-                oLocationMine loc = (oLocationMine)Engine.FindLocationByGuid(LocationGuid);
                 int value = 0;
-                value = loc.Mine();
+                value = Engine.Mine(LocationGuid);
 
                 Cargo += value;
                 if (Cargo == Capacity || value == 0)
@@ -143,6 +169,7 @@ namespace RTS_alpha1
                 _destination = new oStep(node.X, node.Y);
 
                 oPathfinder pathFinder = new oPathfinder(Engine.Nodes, X, Y, _destination);
+                pathFinder.UnitGuid = this.Guid;
 
                 _path = pathFinder.FindPath();
 
@@ -160,9 +187,12 @@ namespace RTS_alpha1
             if (_path.Count > 0)
             {
                 oPathStep _next = _path[_path.Count - 1];
-                _path.RemoveAt(_path.Count - 1);
-                PosX = _next.X;
-                PosY = _next.Y;
+                if (Engine.NodeIsEmpty(Guid, _next.X, _next.Y))
+                {
+                    _path.RemoveAt(_path.Count - 1);
+                    PosX = _next.X;
+                    PosY = _next.Y;
+                }
             }
             else
             {
@@ -174,12 +204,69 @@ namespace RTS_alpha1
         {
             if (Cargo > 0)
             {
-                oLocationForge loc = (oLocationForge)Engine.FindLocationByGuid(LocationGuid);
-                loc.Supply += 1;
-                Cargo -= 1;
+                oLocation l = Engine.FindLocationByGuid(LocationGuid);
+                if (l != null && l.GetType() == typeof(oLocationForge))
+                {
+                    Engine.Deposit(LocationGuid);
+                    //oLocationForge loc = (oLocationForge)l;
+                    //loc.Supply += 1;
+                    Cargo -= 1;
+                }
+                else
+                {
+                    CurrentAction = UnitAction.FindForge;
+                }
             }
             else
             {
+                CurrentAction = UnitAction.FindMine;
+            }
+        }
+        private void WanderStart()
+        {
+            oPathStep node = Engine.FindRandom();
+            if (node != null)
+            {
+                _destination = new oStep(node.X, node.Y);
+
+                oPathfinder pathFinder = new oPathfinder(Engine.Nodes, X, Y, _destination);
+                pathFinder.UnitGuid = this.Guid;
+
+                _path = pathFinder.FindPath();
+                _pathBlockedCnt = 0;
+
+                CurrentAction = UnitAction.MoveToMine;
+            }
+            else
+            {
+                //?? boom? fuck!!
+
+            }
+        }
+        private void WanderWalk()
+        {
+            if (_path.Count > 0)
+            {
+                oPathStep _next = _path[_path.Count - 1];
+                if (Engine.NodeIsEmpty(Guid, _next.X, _next.Y))
+                {
+                    _path.RemoveAt(_path.Count - 1);
+                    PosX = _next.X;
+                    PosY = _next.Y;
+                }
+                else
+                {
+                    _pathBlockedCnt += 1;
+                    if (_pathBlockedCnt > 5)
+                    {
+                        CurrentAction = UnitAction.WanderStart;
+                    }
+                }
+            }
+            else
+            {
+                LocationGuid = Engine.FindNodeByCoor(X, Y).LocationGuid;
+                _mineTimer = 0;
                 CurrentAction = UnitAction.FindMine;
             }
         }

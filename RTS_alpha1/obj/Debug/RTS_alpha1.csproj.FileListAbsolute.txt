@@ -7,3 +7,12 @@ D:\Projects\RTS_alpha1\RTS_alpha1\obj\Debug\RTS_alpha1.csproj.GenerateResource.C
 D:\Projects\RTS_alpha1\RTS_alpha1\obj\Debug\RTS_alpha1.exe
 D:\Projects\RTS_alpha1\RTS_alpha1\obj\Debug\RTS_alpha1.pdb
 D:\Projects\RTS_alpha1\RTS_alpha1\obj\Debug\RTS_alpha1.Form1.resources
+C:\Users\andrew\Documents\RTSAlpha1\RTS_alpha1\bin\Debug\RTS_alpha1.exe.config
+C:\Users\andrew\Documents\RTSAlpha1\RTS_alpha1\bin\Debug\RTS_alpha1.exe
+C:\Users\andrew\Documents\RTSAlpha1\RTS_alpha1\bin\Debug\RTS_alpha1.pdb
+C:\Users\andrew\Documents\RTSAlpha1\RTS_alpha1\obj\Debug\RTS_alpha1.csprojResolveAssemblyReference.cache
+C:\Users\andrew\Documents\RTSAlpha1\RTS_alpha1\obj\Debug\RTS_alpha1.Form1.resources
+C:\Users\andrew\Documents\RTSAlpha1\RTS_alpha1\obj\Debug\RTS_alpha1.Properties.Resources.resources
+C:\Users\andrew\Documents\RTSAlpha1\RTS_alpha1\obj\Debug\RTS_alpha1.csproj.GenerateResource.Cache
+C:\Users\andrew\Documents\RTSAlpha1\RTS_alpha1\obj\Debug\RTS_alpha1.exe
+C:\Users\andrew\Documents\RTSAlpha1\RTS_alpha1\obj\Debug\RTS_alpha1.pdb

@@ -21,7 +21,7 @@ namespace RTS_alpha1
             LocationType = LocationType.IronForge;
             ProcessTime = 1 + (float)(Global.rnd.NextDouble() * 3.0);
             ProcessRate = 0.1f;
-            ProcessAmount = 4;
+            ProcessAmount = 1;
             _processTimer = 0;
         }
 

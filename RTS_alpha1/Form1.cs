@@ -12,7 +12,9 @@ namespace RTS_alpha1
 {
     public partial class Form1 : Form
     {
-        public int GridSize = 32;
+        public int GridSize = 16;
+        public int Height = 24;
+        public int Width = 32;
 
         public Form1()
         {
@@ -21,7 +23,7 @@ namespace RTS_alpha1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Engine.Init(8, 8);
+            Engine.Init(Height, Width);
             DrawGrid();
         }
 
@@ -37,27 +39,43 @@ namespace RTS_alpha1
             Graphics g = Graphics.FromImage(img);
             StringFormat drawFormat = new StringFormat();
             Rectangle rect;
-            Font fnt = new Font("Calibri", 16, FontStyle.Bold);
+            Font fnt = new Font("Calibri", 12, FontStyle.Bold);
 
-            drawFormat.Alignment = StringAlignment.Center;
+            tbxCurrentActions.Text = "";
+            foreach(oUnit u in Engine.Units)
+            {
+                tbxCurrentActions.Text += u.Name + " > " + u.CurrentAction + "\r\n";
+            }
+
+            lblMoney.Text = Engine.Money.ToString();
+
+            drawFormat.Alignment = StringAlignment.Near;
             drawFormat.LineAlignment = StringAlignment.Center;
             
             foreach (oNode node in Engine.Nodes)
             {
                 rect = new Rectangle(node.X * GridSize, node.Y * GridSize, GridSize, GridSize);
 
-                g.DrawRectangle(Pens.Black, rect);
+                g.DrawRectangle(Pens.OliveDrab, rect);
                 if (node.LocationGuid != Guid.Empty)
                 {
                     oLocation loc = Engine.FindLocationByGuid(node.LocationGuid);
-                    switch (loc.LocationType)
+                    if (loc != null)
                     {
-                        case LocationType.IronForge:
-                            g.DrawString("F", fnt, Brushes.Firebrick, rect, drawFormat);
-                            break;
-                        case LocationType.IronMine:
-                            g.DrawString("M", fnt, Brushes.SkyBlue, rect, drawFormat);
-                            break;
+                        switch (loc.LocationType)
+                        {
+                            case LocationType.IronForge:
+                                oLocationForge f = (oLocationForge)loc;
+                                rect.Width = GridSize * 4;
+
+                                g.DrawString(f.Supply.ToString(), fnt, Brushes.Firebrick, rect, drawFormat);
+                                break;
+                            case LocationType.IronMine:
+                                oLocationMine m = (oLocationMine)loc;
+                                rect.Width = GridSize * 4;
+                                g.DrawString(m.Supply.ToString(), fnt, Brushes.SkyBlue, rect, drawFormat);
+                                break;
+                        }
                     }
                 }
             }
@@ -71,21 +89,22 @@ namespace RTS_alpha1
                 rect = new Rectangle(u.X * GridSize, u.Y * GridSize, GridSize, GridSize);
                 g.DrawString(u.Name, fnt, Brushes.Black, rect, drawFormat);
 
-                if (u._destination != null)
-                {
-                    rect = new Rectangle(u._destination.X * GridSize, u._destination.Y * GridSize, GridSize, GridSize);
-                    g.DrawEllipse(Pens.Blue, rect);
-                }
+                /*
+                                if (u._destination != null)
+                                {
+                                    rect = new Rectangle(u._destination.X * GridSize, u._destination.Y * GridSize, GridSize, GridSize);
+                                    g.DrawEllipse(Pens.Blue, rect);
+                                }
 
-
-                drawFormat.Alignment = StringAlignment.Far;
-                drawFormat.LineAlignment = StringAlignment.Near;
-                fnt = new Font("Calibri", 8, FontStyle.Regular);
-                foreach (oPathStep p in u._path)
-                {
-                    rect = new Rectangle(p.X * GridSize, p.Y * GridSize, GridSize, GridSize);
-                    g.DrawString(p.Distance.ToString(), fnt, Brushes.Red, rect, drawFormat);
-                }
+                                drawFormat.Alignment = StringAlignment.Far;
+                                drawFormat.LineAlignment = StringAlignment.Near;
+                                fnt = new Font("Calibri", 8, FontStyle.Regular);
+                                foreach (oPathStep p in u._path)
+                                {
+                                    rect = new Rectangle(p.X * GridSize, p.Y * GridSize, GridSize, GridSize);
+                                    g.DrawString(p.Distance.ToString(), fnt, Brushes.Red, rect, drawFormat);
+                                }
+                                */
             }
 
 
@@ -99,7 +118,7 @@ namespace RTS_alpha1
 
         private void button3_Click(object sender, EventArgs e)
         {
-            Engine.Init(8, 8);
+            Engine.Init(Height, Width);
             DrawGrid();
         }
 
